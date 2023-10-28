@@ -1,22 +1,20 @@
 import mongoose, {
-    Mongoose,
     Model,
     Document,
     SortOrder,
-    PopulateOption,
-    Query,
     UpdateQuery,
     Types,
-    PopulateOptions
+    PopulateOptions, FilterQuery
 } from 'mongoose';
-interface Options {
-    sortType?: string;
+import HttpException from "../exceptions/http.exception.js";
+interface Options<Doc extends Document> {
+    sortType?: any;
     sortOrder?: SortOrder;
     limit?: number;
     skip?: number;
 }
 interface Reader<T, F extends Document> {
-    find: (query: T, options?: Options) => Promise<F[]>;
+    find: (query: T, options?: Options<F>) => Promise<F[]>;
     findById: (query: string) => Promise<F | null>;
     exists: (query: T) => Promise<boolean>;
     findOne: (query: T) => Promise<F | null>;
@@ -28,7 +26,7 @@ interface Writer<T, F extends Document> {
     delete: (query: T) => Promise<Document<F> | null>;
 }
 export type BaseRepository<T, F extends Document> = Writer<T, F> & Reader<T, F>;
-export abstract class MongoRepository<T extends object, F extends Document>
+export abstract class MongoRepository<F extends Document, T extends Object = FilterQuery<F>>
     implements BaseRepository<T, F>
 {
     //private Model: Model<F>;
@@ -36,7 +34,7 @@ export abstract class MongoRepository<T extends object, F extends Document>
     protected constructor(private  model:Model<F>) {
         //this.Model = mongoose.model<F>(model);
     }
-    find(query: T, options?: Options): Promise<F[]> {
+    find(query: T, options?: Options<F>): Promise<F[]> {
         let res = this.model.find(query);
         if (!options) {
             return res;
@@ -67,7 +65,7 @@ export abstract class MongoRepository<T extends object, F extends Document>
     countDocuments(query: T): Promise<number> {
         return this.model.countDocuments(query);
     }
-    create(body: Partial<F>) {
+    create(body: Partial<F>):Promise<F> {
         return this.model.create(body)
     }
     update(body: Partial<F>) {
@@ -82,15 +80,34 @@ export abstract class MongoRepository<T extends object, F extends Document>
         return this.model.findOneAndUpdate(query, update)
     }
     findByIdAndUpdate(query:Types.ObjectId, update:UpdateQuery<F>) {
-        return this.model.findByIdAndUpdate(query, update)
+        return this.model.findByIdAndUpdate(query, update, {new:true})
     }
     findByIdAndDelete(id:string|Types.ObjectId) {
         return this.model.findByIdAndDelete(id)
     }
-    async findAndPopulate(query:T, option:(PopulateOptions|string)[]) {
-        const doc = await this.model.findOne(query);
-        if(!doc) return;
-        return doc.populate(option)
+    async findAndPopulate(query:T, option:(PopulateOptions|PopulateOptions[])) {
+        const docs = await this.model.find(query);
+        if(!docs) return;
+        return Promise.all(docs.map(doc=> doc.populate(option)))
+    }
+    async queryDynamicModel<Doc>(model:string, query:FilterQuery<Doc>):Promise<(Doc|null)[]> {
+        const Model = mongoose.model(model);
+        if(!Model) throw new HttpException(`Model ${model} doesn't exist`, 400);
+        return Model.find(query);
+    }
+    async deleteMany(query:T) {
+        this.model.deleteMany(query)
+    }
+    async paginate(paginationObj:Options<F>& {limit:number, filter:T,  page:number} ) {
+        const {page=1, filter, limit=10, sortType, sortOrder} = paginationObj;
+        const startIndex = (+page -1)*limit;
+        const totalCount = await this.model.countDocuments(filter);
+        const result = await this.find(paginationObj.filter, {skip:startIndex, sortOrder, sortType, limit});
+        return {
+            result,
+            currentPage: +page,
+            numberOfPages: Math.ceil(totalCount / limit)
+        };
     }
 }
 

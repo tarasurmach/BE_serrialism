@@ -1,11 +1,10 @@
 import { MongoRepository } from '../../utils/repositories/base.repository.js';
 import { Review } from '../../resources/review/review.interface.js';
-import {Document, FilterQuery, Model, Query, Schema, Types} from 'mongoose';
-import { Filter } from './review.service.js';
+import {FilterQuery, Model, Types} from 'mongoose';
 import { injectable } from 'inversify';
 import HttpException from "../../utils/exceptions/http.exception.js";
 @injectable()
-export class ReviewRepository extends MongoRepository<FilterQuery<Review>, Review> {
+export class ReviewRepository extends MongoRepository<Review> {
     constructor(private reviewModel: Model<Review>) {
         super(reviewModel);
 

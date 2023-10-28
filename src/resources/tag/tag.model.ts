@@ -22,6 +22,7 @@ const tagSchema = new Schema<ITag>({
         enum:["Review", "List"],
         default:"Review"
     }
-})
+});
+
 tagSchema.index({tag:1, type:1}, {unique:true})
 export const TagModel = model<Schema<ITag>>("Tag", tagSchema)

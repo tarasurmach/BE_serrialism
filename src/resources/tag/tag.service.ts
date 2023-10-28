@@ -1,9 +1,8 @@
 import {inject, injectable} from "inversify";
 import {TagRepository} from "./tag.repository.js";
 import {Tag_Types} from "../../utils/types/injection_types.js";
-import mongoose, {Model, ObjectId, Schema, Types} from "mongoose";
-import asyncHandler from "express-async-handler";
-import {Runtime} from "inspector";
+import  {ObjectId, Types} from "mongoose";
+
 import {ITag} from "./tag.interface.js";
 import {Review} from "../review/review.interface.js";
 
@@ -65,18 +64,3 @@ export class TagService {
 
 }
 
-async function waitAndMaybeReject() {
-    // waiting one second
-    await new Promise(r => setTimeout(r, 1000));
-    // flipping coin
-    const isHeads = Boolean(Math.round(Math.random()));
-    if (isHeads) return 'Hooray!';
-    throw Error('Darn it!');
-}
-function handleCoinFlip() {
-    try {
-        return waitAndMaybeReject()
-    }catch (e:unknown) {
-        return "Error: "+(e as Error).message
-    }
-}

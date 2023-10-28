@@ -1,10 +1,10 @@
 import {injectable} from "inversify";
 import {MongoRepository} from "../../utils/repositories/base.repository.js";
 import {ITag} from "./tag.interface.js";
-import {FilterQuery, Model, Types} from "mongoose";
+import {Model, Types} from "mongoose";
 
 @injectable()
-export class TagRepository extends MongoRepository<FilterQuery<ITag>, ITag>{
+export class TagRepository extends MongoRepository<ITag>{
     constructor(private tagModel:Model<ITag>) {
         super(tagModel)
     }

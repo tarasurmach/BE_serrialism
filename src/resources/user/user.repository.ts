@@ -4,7 +4,7 @@ import User from "./user.interface.js";
 import {Model} from "mongoose";
 
 @injectable()
-export class UserRepository extends MongoRepository<{}, User>{
+export class UserRepository extends MongoRepository<User>{
     constructor(private readonly userModel:Model<User>) {
         super(userModel);
         

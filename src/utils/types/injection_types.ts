@@ -28,3 +28,8 @@ export const Tag_Types = {
     TagService:Symbol("TagService"),
     TagRepository:Symbol("TagRepository")
 }
+export const Comment_Types = {
+    CommentController:Symbol("CommentController"),
+    CommentService:Symbol("CommentService"),
+    CommentRepository:Symbol("CommentRepository")
+}

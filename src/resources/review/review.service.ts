@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import mongoose, {Schema, Types, PopulateOptions} from 'mongoose';
+import  {Schema, Types, } from 'mongoose';
 import { ReviewRepository } from './review.repository.js';
 import {Notification_TYPES, Review_TYPES as TYPES, Tag_Types, User_TYPES} from "../../utils/types/injection_types.js";
 import {NotificationService} from "../notification/notification.service.js";
@@ -38,7 +38,7 @@ export class ReviewService {
         if(!rating || !content) throw new HttpException("You cannot add empty log", 400);
         const userExists = await this.userRepo.findOne({username});
         if(!userExists) throw new HttpException(`User ${username} doesn't exist`, 400);
-        const exists = await this.reviewRepository.findOne({$and:[{username}, {media}]});
+        const exists = await this.reviewRepository.findOne({username, media});
         if(exists) throw new HttpException("Review exists", 409);
         const res = await this.reviewRepository.create({...body, tags:[], username, userId:(userId as unknown) as Types.ObjectId}) as Review;
         if(!res._id) {
@@ -53,6 +53,7 @@ export class ReviewService {
                 console.error(e)
             }
         }*/
+
         if(tags) {
             res.tags =  await this.tagService.postTags(userId , res._id.toString(), "Review", tags);
         }
@@ -140,8 +141,9 @@ export class ReviewService {
     }
     public async getSingleReview(_id:string):Promise<Review|undefined> {
         const res = await this.reviewRepository.findAndPopulate({_id}, [{path:"tags", select:"tag"}, {path:"likes", select:"username imgUrl"}]);
+
         if(!res) throw new HttpException("Review not found", 404);
-        return res
+        return (res as unknown) as Review
     }
 
 

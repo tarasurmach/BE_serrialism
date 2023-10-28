@@ -4,8 +4,8 @@ import {NotificationRepository} from "../notification/notification.repository.js
 import {Notification} from "../notification/notification.interface.js";
 import HttpException from "../../utils/exceptions/http.exception.js";
 import {Client, ServerSentEventsService} from "../SSE/serverSentEvents.service.js";
-import {Document} from "mongoose";
-export type Filter = Partial<Notification>
+import {Document, FilterQuery} from "mongoose";
+
 interface NotificationWithMessage extends Notification {
     message:string
 }
@@ -15,7 +15,7 @@ export class NotificationService {
     constructor(
         @inject(Notification_TYPES.NotificationRepository) private repository:NotificationRepository,
         @inject(SSE_TYPES.SSEService) private  readonly sseService:ServerSentEventsService) {}
-    public async getAllNotifications(query:Filter):Promise<NotificationWithMessage[]| undefined> {
+    public async getAllNotifications(query:FilterQuery<Notification>):Promise<NotificationWithMessage[]| undefined> {
         const res = await this.repository.find(query) as NotificationWithMessage[];
         return res.map(item=> {
             item = item.toObject()
