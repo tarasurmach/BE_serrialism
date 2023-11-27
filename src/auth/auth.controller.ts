@@ -1,11 +1,7 @@
 import {controller, httpGet, httpPost} from "inversify-express-utils";
-import {inject, injectable} from "inversify";
-import jwt from "jsonwebtoken";
-
-
+import {inject} from "inversify";
 import {NextFunction, Request, Response} from "express";
-
-import {ApplyTryCatchToMethods, TryCatch, tryCatch} from "../utils/decoratorTest.js";
+import {tryCatch} from "../utils/decoratorTest.js";
 import {Auth_TYPES} from "../utils/types/injection_types.js";
 import {AuthService} from "./auth.service.js";
 import validationMiddleware from "../middleware/validation.middleware.js";
@@ -22,21 +18,7 @@ interface SignUp {
     password:string,
     password2:string
 }
-@TryCatch
-class Fuck {
-    constructor(arg=":dsd") {
-    }
-    test1() {
-        return "ssdfs"
-    }
-    test2() {
 
-    }
-
-}
-
-
-//@ApplyTryCatchToMethods
 
 @controller("/auth")
 export class AuthController {
