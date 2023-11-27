@@ -186,13 +186,13 @@ export function tryCatch<T>(target: T, propKey: PropertyKey, descriptor: Propert
                 console.log(result)
                 if (result && result instanceof Promise) {
                     console.log("err")
-                    return  result.catch(e => {
+                    return   result.catch(e => {
                         throw new HttpException(e.message, e.status ?? 500)
                     })
                 }
 
                 return result
-            } catch (e:any) {
+            } catch (e) {
                 next(e)
             }
 

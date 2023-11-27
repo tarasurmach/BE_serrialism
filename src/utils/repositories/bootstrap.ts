@@ -11,6 +11,7 @@ import {initializeDbConnection, initializeMiddleware} from "../../app.js";
 import {authContainer} from "../../auth/auth.container.js";
 import {createServer, Server} from "http";
 import {tagContainer} from "../../resources/tag/tag.container.js";
+import ErrorMiddleware from "../../middleware/error.middleware.js"
 export const ServerSocketSymbol = Symbol("ServerSocket")
 export  async function bootstrap() {
     const container = new Container();
@@ -21,7 +22,10 @@ export  async function bootstrap() {
     container.load(authContainer)
     container.load(tagContainer)
     const server = new InversifyExpressServer(container, null, {rootPath:"/api/v1"});
-    server.setConfig(initializeMiddleware)
+    server.setConfig(initializeMiddleware);
+    server.setErrorConfig(app => {
+        app.use(ErrorMiddleware)
+    })
     const httpServer:Server = createServer(server.build())
     //container.bind<Server>(ExpressServer).toConstantValue(httpServer)
     //container.bind<ServerSocket>(ServerSocketSymbol).to(ServerSocket).inSingletonScope()

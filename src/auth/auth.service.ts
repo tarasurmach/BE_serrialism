@@ -1,10 +1,9 @@
 import {inject, injectable} from "inversify";
 import { User_TYPES} from "../utils/types/injection_types.js";
 import {UserRepository} from "../resources/user/user.repository.js";
-import {httpPost} from "inversify-express-utils";
+
 import User from "../resources/user/user.interface.js";
 import HttpException from "../utils/exceptions/http.exception.js";
-import {promiseWrapper} from "../utils/helpers/promiseWrapper.helper.js";
 import {compare, hash} from "bcrypt"
 import {sign, verify} from "../utils/helpers/jwt.helper.js";
 import {SignIn} from "./auth.controller.js";
@@ -30,11 +29,14 @@ export class AuthService {
 
     }
 
-    async signUp({username, password, email}:Pick<User, "password"|"username"|"email">) {
+    async signUp({username, password, email, password2}:Pick<User, "password"|"username"|"email">&{password2:string}) {
+        if(password !== password2) {
+            throw new HttpException("Passwords don't match", 400)
+        }
         const userExists  = await this.repository.findOne({$or:[{username}, {email}]});
         if(userExists) {
             const field = username === userExists.username ? "username" : "email";
-            throw new HttpException(`User with such ${field} already exists`, 409)
+            throw new HttpException(`User with such ${field} already exists`, 409);
         }
         const hashedPw = await hash(password, 10);
         const result = await this.repository.create({username, email, password:hashedPw});

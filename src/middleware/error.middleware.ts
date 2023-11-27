@@ -9,6 +9,6 @@ export default function (
 ): void {
     const status = error.status ?? 500;
     const message = error.message ?? 'Unknown error';
-    console.log(error, "middle")
+    console.log( "middle")
     res.status(status).json({ message });
 }

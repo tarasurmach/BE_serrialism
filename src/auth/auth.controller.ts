@@ -45,7 +45,7 @@ export class AuthController {
     @tryCatch
     @httpPost("/signIn", /*validationMiddleware(login),*/ determineLoginType)
     private async signIn(req:Express.TypedRequestBody<SignIn>, res: Response):Promise<Response|void> {
-
+        console.log("what")
         const {tokens, result:user} = await this.service.login(req.body);
         const [accessToken, refreshToken] = tokens
         res.status(200)
@@ -55,11 +55,16 @@ export class AuthController {
     @tryCatch
     @httpPost("/signup", validationMiddleware(register))
     private async signUp(req:Express.TypedRequestBody<SignUp>, res:Response, next:NextFunction):Promise<Response|void> {
-        const {tokens, result:{username, _id}} = await this.service.signUp(req.body);
-        const [accessToken, refreshToken] = tokens;
-        res.status(200)
-            .cookie(refreshToken, {httpOnly:true, sameSite:"lax", maxAge:7*24*60*1000})
-            .json({token:accessToken, username:username, userId:_id})
+        try {
+            console.log("what")
+            const {tokens, result:{username, _id}} = await this.service.signUp(req.body);
+            const [accessToken, refreshToken] = tokens;
+            res.status(200)
+                .cookie(refreshToken, {httpOnly:true, sameSite:"lax", maxAge:7*24*60*1000})
+                .json({token:accessToken, username:username, userId:_id})
+        }catch (e) {
+            next(e)
+        }
     }
     @tryCatch
     @httpGet("/logout")
