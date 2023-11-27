@@ -2,9 +2,8 @@ import {inject, injectable} from "inversify";
 import {TagRepository} from "./tag.repository.js";
 import {Tag_Types} from "../../utils/types/injection_types.js";
 import  {ObjectId, Types} from "mongoose";
-
 import {ITag} from "./tag.interface.js";
-import {Review} from "../review/review.interface.js";
+
 
 
 interface PostTags {
@@ -45,6 +44,7 @@ export class TagService {
         }*/
         return (await this.tagRepo.removeOldTags(oldTagIds, item) as unknown) as Promise<Awaited<ITag[]>>
     }
+
     public async handleTags(tags:string[], model:ModelType, userId:string, item:string):Promise<Types.ObjectId[]> {
         console.log("Tags in: "+tags)
         const result = await Promise.all(tags.map(async tag=>{
